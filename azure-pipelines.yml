@@ -1,0 +1,71 @@
+trigger:
+  - main
+
+pool:
+  name: 'ManagedNodePool'  # Use AKS Managed Node Pool
+
+variables:
+  DOCKER_IMAGE: 'nginx:latest'  # Change to the image you want to scan
+  DOCKERHUB_REPO: 'your-dockerhub-username/nginx-scanned' # Change to your DockerHub repo
+  SCANNED_IMAGE_TAG: 'scanned-latest'
+  DOCKER_USERNAME: 'your-dockerhub-username'
+  DOCKER_PASSWORD: 'your-dockerhub-password'  # Use Azure DevOps secret variable
+
+stages:
+  - stage: Pull_Image
+    displayName: 'Pull Image from Docker Hub'
+    jobs:
+      - job: PullDockerImage
+        displayName: 'Pull Docker Image'
+        steps:
+          - script: |
+              echo "Pulling Docker Image: $(DOCKER_IMAGE)"
+              docker pull $(DOCKER_IMAGE)
+            displayName: 'Pull Image from Docker Hub'
+
+  - stage: Scan_Image
+    displayName: 'Scan Image with Trivy'
+    dependsOn: Pull_Image
+    jobs:
+      - job: ScanDockerImage
+        displayName: 'Scan Image with Trivy'
+        steps:
+          - script: |
+              echo "Installing Trivy..."
+              wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.45.0_Linux-64bit.deb
+              sudo dpkg -i trivy_0.45.0_Linux-64bit.deb
+            displayName: 'Install Trivy Scanner'
+
+          - script: |
+              echo "Running Trivy Scan on Image: $(DOCKER_IMAGE)"
+              trivy image --exit-code 0 --format json -o trivy-report.json $(DOCKER_IMAGE)
+            displayName: 'Scan Image with Trivy'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Trivy Scan Report'
+            inputs:
+              pathToPublish: 'trivy-report.json'
+              artifactName: 'SecurityReports'
+
+  - stage: Push_to_DockerHub
+    displayName: 'Push Image to Docker Hub'
+    dependsOn: Scan_Image
+    condition: succeeded()
+    jobs:
+      - job: PushDockerImage
+        displayName: 'Push Scanned Image to Docker Hub'
+        steps:
+          - script: |
+              echo "Logging in to Docker Hub..."
+              echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
+            displayName: 'Login to Docker Hub'
+
+          - script: |
+              echo "Tagging Image for Docker Hub..."
+              docker tag $(DOCKER_IMAGE) $(DOCKERHUB_REPO):$(SCANNED_IMAGE_TAG)
+            displayName: 'Tag Image for Docker Hub'
+
+          - script: |
+              echo "Pushing Image to Docker Hub..."
+              docker push $(DOCKERHUB_REPO):$(SCANNED_IMAGE_TAG)
+            displayName: 'Push Image to Docker Hub'
