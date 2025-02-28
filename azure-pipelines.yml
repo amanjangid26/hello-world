@@ -2,7 +2,7 @@ trigger:
   - main
 
 pool:
-  name: 'ManagedNodePool'  # Use AKS Managed Node Pool
+  name: 'Aman-Managed-Azure-DevOps-Pool'  # Use AKS Managed Node Pool
 
 variables:
   DOCKER_IMAGE: 'nginx:latest'  # Change to the image you want to scan
