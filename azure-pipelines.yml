@@ -8,8 +8,8 @@ variables:
   DOCKER_IMAGE: 'nginx:latest'  # Change to the image you want to scan
   DOCKERHUB_REPO: 'aman267/nginx' # Change to your DockerHub repo
   SCANNED_IMAGE_TAG: 'scanned'
-  DOCKER_USERNAME: ''
-  DOCKER_PASSWORD: ''  # Use Azure DevOps secret variable
+  DOCKER_USERNAME: 'aman267'
+  DOCKER_PASSWORD: 'Hanuman26797'  # Use Azure DevOps secret variable
 
 stages:
   - stage: Pull_Image
@@ -24,23 +24,22 @@ stages:
             displayName: 'Pull Image from Docker Hub'
 
   - stage: Scan_Image
-    displayName: 'Scan Image with Trivy'
+    displayName: 'Scan Image with Qscanner'
     dependsOn: Pull_Image
     jobs:
       - job: ScanDockerImage
         displayName: 'Scan Image with Qscanner'
         steps:
           - script: |
-              echo "Running Trivy Scan on Image: $(DOCKER_IMAGE)"
+              echo "Running Qscanner Scan on Image: $(DOCKER_IMAGE)"
               sudo ./root/linux-amd64/qscanner image $(DOCKER_IMAGE) --mode get-report --access-token $QUALYS_ACCESS_TOKEN --pod US2 --report-format table,json 
               cp /root/qualys/qscanner/data/eeb6ee3f44bd0b5103bb561b4c16bcb82328cfe5809ab675bb17ab3a16c517c9-Report.json 
- 
-            displayName: 'Scan Image with Trivy'
+            displayName: 'Scan Image with Qscanner'
 
           - task: PublishBuildArtifacts@1
-            displayName: 'Publish Trivy Scan Report'
+            displayName: 'Publish Qscanner Scan Report'
             inputs:
-              pathToPublish: '/root/qualys/qscanner/data/qscanner-report.json'
+              pathToPublish: '/root/qualys/qscanner/data//root/qualys/qscanner/data/eeb6ee3f44bd0b5103bb561b4c16bcb82328cfe5809ab675bb17ab3a16c517c9-Report.json'
               artifactName: 'SecurityReports'
  
           
