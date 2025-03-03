@@ -38,7 +38,7 @@ stages:
           - task: PublishBuildArtifacts@1
             displayName: 'Publish Qscanner Scan Report'
             inputs:
-              pathToPublish: '/root/qualys/qscanner/data//root/qualys/qscanner/data/eeb6ee3f44bd0b5103bb561b4c16bcb82328cfe5809ab675bb17ab3a16c517c9-Report.json'
+              pathToPublish: '/root/qualys/qscanner/data/eeb6ee3f44bd0b5103bb561b4c16bcb82328cfe5809ab675bb17ab3a16c517c9-Report.json'
               artifactName: 'SecurityReports'
  
           
