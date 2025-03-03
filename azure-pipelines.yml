@@ -38,14 +38,18 @@ stages:
 
           - script: |
               echo "Running Trivy Scan on Image: $(DOCKER_IMAGE)"
-              sudo trivy image --exit-code 0 --format json -o trivy-report.json $(DOCKER_IMAGE)
+              sudo trivy image --exit-code 0 --format sarif -o trivy-report.sarif $(DOCKER_IMAGE)
             displayName: 'Scan Image with Trivy'
 
-          - task: PublishBuildArtifacts@1
-            displayName: 'Publish Trivy Scan Report'
+          #- task: PublishBuildArtifacts@1
+          #  displayName: 'Publish Trivy Scan Report'
+          #  inputs:
+          #    pathToPublish: 'trivy-report.json'
+          #    artifactName: 'SecurityReports'
+          - task: AdvancedSecurity-Publish@1
             inputs:
-              pathToPublish: 'trivy-report.json'
-              artifactName: 'SecurityReports'
+              SarifsInputDirectory: 'trivy-report.sarif'  
+          
 
   - stage: Push_to_DockerHub
     displayName: 'Push Image to Docker Hub'
