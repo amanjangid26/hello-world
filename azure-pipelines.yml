@@ -32,7 +32,7 @@ stages:
         steps:
           - script: |
               echo "Running Qscanner Scan on Image: $(DOCKER_IMAGE)"
-              sudo /root/linux-amd64/qscanner image $(DOCKER_IMAGE) --mode get-report --access-token $QUALYS_ACCESS_TOKEN --pod US2 --report-format table,json 
+              sudo /root/linux-amd64/qscanner image $(DOCKER_IMAGE) --mode get-report --access-token $QUALYS_ACCESS_TOKEN --pod CA1 --report-format table,json 
             displayName: 'Scan Image with Qscanner'
 
           - task: PublishBuildArtifacts@1
