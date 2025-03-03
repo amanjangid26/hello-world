@@ -33,7 +33,6 @@ stages:
           - script: |
               echo "Running Qscanner Scan on Image: $(DOCKER_IMAGE)"
               sudo ./root/linux-amd64/qscanner image $(DOCKER_IMAGE) --mode get-report --access-token $QUALYS_ACCESS_TOKEN --pod US2 --report-format table,json 
-              cp /root/qualys/qscanner/data/eeb6ee3f44bd0b5103bb561b4c16bcb82328cfe5809ab675bb17ab3a16c517c9-Report.json 
             displayName: 'Scan Image with Qscanner'
 
           - task: PublishBuildArtifacts@1
