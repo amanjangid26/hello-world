@@ -2,14 +2,14 @@ trigger:
   - main
 
 pool:
-  name: 'Aman-Self-Hosted-CICD'  # Use AKS Managed Node Pool
+  name: 'Aman-Self-Hosted-CICD'  # Ensure this agent is running as root
 
 variables:
   DOCKER_IMAGE: 'nginx:latest'  # Change to the image you want to scan
-  DOCKERHUB_REPO: 'your-dockerhub-username/nginx-scanned' # Change to your DockerHub repo
-  SCANNED_IMAGE_TAG: 'scanned-latest'
-  DOCKER_USERNAME: 'your-dockerhub-username'
-  DOCKER_PASSWORD: 'your-dockerhub-password'  # Use Azure DevOps secret variable
+  DOCKERHUB_REPO: 'aman267/nginx' # Change to your DockerHub repo
+  SCANNED_IMAGE_TAG: 'scanned'
+  DOCKER_USERNAME: 'aman267'
+  DOCKER_PASSWORD: 'Hanuman26797'  # Use Azure DevOps secret variable
 
 stages:
   - stage: Pull_Image
@@ -20,7 +20,7 @@ stages:
         steps:
           - script: |
               echo "Pulling Docker Image: $(DOCKER_IMAGE)"
-              docker pull $(DOCKER_IMAGE)
+              sudo docker pull $(DOCKER_IMAGE)
             displayName: 'Pull Image from Docker Hub'
 
   - stage: Scan_Image
@@ -38,7 +38,7 @@ stages:
 
           - script: |
               echo "Running Trivy Scan on Image: $(DOCKER_IMAGE)"
-              trivy image --exit-code 0 --format json -o trivy-report.json $(DOCKER_IMAGE)
+              sudo trivy image --exit-code 0 --format json -o trivy-report.json $(DOCKER_IMAGE)
             displayName: 'Scan Image with Trivy'
 
           - task: PublishBuildArtifacts@1
@@ -57,15 +57,15 @@ stages:
         steps:
           - script: |
               echo "Logging in to Docker Hub..."
-              echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
+              echo "$(DOCKER_PASSWORD)" | sudo docker login -u "$(DOCKER_USERNAME)" --password-stdin
             displayName: 'Login to Docker Hub'
 
           - script: |
               echo "Tagging Image for Docker Hub..."
-              docker tag $(DOCKER_IMAGE) $(DOCKERHUB_REPO):$(SCANNED_IMAGE_TAG)
+              sudo docker tag $(DOCKER_IMAGE) $(DOCKERHUB_REPO):$(SCANNED_IMAGE_TAG)
             displayName: 'Tag Image for Docker Hub'
 
           - script: |
               echo "Pushing Image to Docker Hub..."
-              docker push $(DOCKERHUB_REPO):$(SCANNED_IMAGE_TAG)
+              sudo docker push $(DOCKERHUB_REPO):$(SCANNED_IMAGE_TAG)
             displayName: 'Push Image to Docker Hub'
