@@ -32,8 +32,8 @@ stages:
         steps:
           - script: |
               echo "Installing Trivy..."
-              wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.45.0_Linux-64bit.deb
-              sudo dpkg -i trivy_0.45.0_Linux-64bit.deb
+              #wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.45.0_Linux-64bit.deb
+              #sudo dpkg -i trivy_0.45.0_Linux-64bit.deb
             displayName: 'Install Trivy Scanner'
 
           - script: |
